@@ -64,16 +64,21 @@ jobs:
           node-version: 22
 
       - name: Install Web Project Dependencies
+        shell: bash
         run: |
+          rm -f package-lock.json bun.lock
           npm install --no-audit
-          npm install --no-save @rollup/rollup-win32-x64-msvc
+          npm install --no-save @rollup/rollup-win32-x64-msvc lightningcss-win32-x64-msvc @esbuild/win32-x64
 
       - name: Build Web Application
         run: npm run build
 
       - name: Install Electron Packaging Dependencies
         working-directory: ./electron
-        run: npm install --no-audit
+        shell: bash
+        run: |
+          rm -f package-lock.json
+          npm install --no-audit
 
       - name: Build Standalone Windows .exe (Installer & Portable)
         working-directory: ./electron
