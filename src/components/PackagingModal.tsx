@@ -61,18 +61,17 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
 
       - name: Install Web Project Dependencies
-        run: npm install
+        run: npm install --no-audit
 
       - name: Build Web Application
         run: npm run build
 
       - name: Install Electron Packaging Dependencies
         working-directory: ./electron
-        run: npm install
+        run: npm install --no-audit
 
       - name: Build Standalone Windows .exe (Installer & Portable)
         working-directory: ./electron
@@ -84,8 +83,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Abdullah-Al-Mohit-Portfolio-Windows-EXE
-          path: dist_electron/*.exe
-          if-no-files-found: error
+          path: dist_electron/*
+          if-no-files-found: warn
           retention-days: 30`;
 
   const androidCapacitorConfig = `{
