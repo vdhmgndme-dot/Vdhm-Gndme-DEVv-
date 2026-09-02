@@ -25,7 +25,9 @@ jobs:
           node-version: 22
 
       - name: Install Web Project Dependencies
-        run: npm install --no-audit
+        run: |
+          npm install --no-audit
+          npm install --no-save @rollup/rollup-win32-x64-msvc
 
       - name: Build Web Application
         run: npm run build
