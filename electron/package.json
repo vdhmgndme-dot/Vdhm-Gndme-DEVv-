@@ -1,0 +1,32 @@
+{
+  "name": "abdullah-al-mohit-portfolio-desktop",
+  "version": "1.0.0",
+  "description": "Abdullah Al Mohit - Developer Portfolio Windows Desktop Application",
+  "main": "main.js",
+  "author": "Abdullah Al Mohit <mouhithgaming@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron main.js",
+    "build:win": "electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.abdullahalmohit.desktop",
+    "productName": "Abdullah Al Mohit Developer Portfolio",
+    "directories": {
+      "output": "../dist_electron"
+    },
+    "files": [
+      "main.js",
+      "../dist/**/*"
+    ],
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "../public/profile.jpg"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
