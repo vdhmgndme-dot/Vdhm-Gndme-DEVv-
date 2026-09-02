@@ -7,7 +7,11 @@
   "license": "MIT",
   "scripts": {
     "start": "electron main.js",
-    "build:win": "electron-builder --win nsis --x64"
+    "build:win": "electron-builder --win nsis portable --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
   },
   "build": {
     "appId": "com.abdullahalmohit.desktop",
@@ -20,13 +24,13 @@
       "../dist/**/*"
     ],
     "win": {
-      "target": ["nsis", "portable"],
-      "icon": "../public/profile.jpg"
+      "target": ["nsis", "portable"]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }

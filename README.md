@@ -84,9 +84,24 @@ npx cap open android
 
 ---
 
-## 🖥️ Windows PC Desktop Software (.exe via Electron)
+## ⚡ Automated Windows PC Desktop Software (.exe via GitHub Actions)
 
-The exact same HTML, CSS, and JavaScript source is packaged into a native Windows 64-bit desktop application using **Electron**:
+You do **not** need to install heavy software, Node.js, or complex build tools on your computer to get the `.exe` file! We have included an automated **GitHub Actions CI/CD workflow** (`.github/workflows/build-windows-exe.yml`) that runs in GitHub's high-speed cloud.
+
+### 4 Simple Steps to Get Your `.exe` File via GitHub:
+
+1. **Push this repository to GitHub** (if not already done).
+2. Go to your repository on GitHub and click the **Actions** tab at the top.
+3. In the left sidebar, click **"Build Windows Desktop App (.exe)"**, then click the blue **"Run workflow"** button on the right.
+4. GitHub's virtual Windows server will compile the app and generate both the **NSIS Installer (.exe)** and **Portable Executable (.exe)**. Once the run finishes (takes ~3 minutes), scroll down to the **Artifacts** section on that workflow run page and download:
+   - `Abdullah-Al-Mohit-Portfolio-Windows-EXE.zip`
+   - Extract the zip file and run the `.exe` directly on any Windows PC!
+
+---
+
+## 🖥️ Local Windows PC Desktop Software (.exe via Electron)
+
+If you prefer building locally on your PC:
 
 ### Prerequisites
 - Windows 10/11 or a Linux/macOS environment with wine for cross-compilation

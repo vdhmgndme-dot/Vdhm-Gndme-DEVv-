@@ -12,7 +12,12 @@ import {
   Layers, 
   Cpu, 
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Github,
+  Sparkles,
+  Play,
+  ArrowRight,
+  ExternalLink
 } from 'lucide-react';
 
 interface PackagingModalProps {
@@ -21,7 +26,7 @@ interface PackagingModalProps {
 }
 
 export const PackagingModal: React.FC<PackagingModalProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'android' | 'windows'>('android');
+  const [activeTab, setActiveTab] = useState<'github' | 'windows' | 'android'>('github');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -31,6 +36,57 @@ export const PackagingModal: React.FC<PackagingModalProps> = ({ isOpen, onClose 
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
   };
+
+  const githubWorkflowYaml = `name: Build Windows Desktop App (.exe)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows manual 1-click trigger from GitHub Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows .exe with Electron
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Web Project Dependencies
+        run: npm install
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Install Electron Packaging Dependencies
+        working-directory: ./electron
+        run: npm install
+
+      - name: Build Standalone Windows .exe (Installer & Portable)
+        working-directory: ./electron
+        run: npm run build:win
+        env:
+          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows .exe as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Abdullah-Al-Mohit-Portfolio-Windows-EXE
+          path: dist_electron/*.exe
+          if-no-files-found: error
+          retention-days: 30`;
 
   const androidCapacitorConfig = `{
   "appId": "com.abdullahalmohit.portfolio",
@@ -74,7 +130,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     backgroundColor: '#090d16',
-    icon: path.join(__dirname, 'icon.png'),
+    icon: path.join(__dirname, '../public/profile.jpg'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
@@ -100,16 +156,17 @@ app.on('window-all-closed', () => {
   const windowsCommands = `# Step 1: Build the production web distribution
 npm run build
 
-# Step 2: Install Electron & electron-builder
-npm install --save-dev electron electron-builder
+# Step 2: Install Electron & electron-builder in electron directory
+cd electron
+npm install
 
-# Step 3: Run the desktop app locally for testing
-npx electron electron/main.js
+# Step 3: Test the desktop app locally
+npm start
 
-# Step 4: Package into a standalone Windows .exe installer
-npx electron-builder --win nsis --x64
+# Step 4: Package into a standalone Windows .exe installer & portable version
+npm run build:win
 
-# Output: Standalone executable (.exe) generated inside the /dist_electron folder!`;
+# Output: Standalone .exe generated inside dist_electron/ folder!`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
@@ -144,35 +201,143 @@ npx electron-builder --win nsis --x64
         </div>
 
         {/* Platform Selector Tabs */}
-        <div className="flex border-b border-slate-800 bg-slate-950/70 px-6 gap-3">
+        <div className="flex border-b border-slate-800 bg-slate-950/70 px-4 sm:px-6 gap-2 overflow-x-auto">
           <button
-            onClick={() => setActiveTab('android')}
-            className={`flex items-center gap-2 py-3 px-4 text-xs font-mono font-medium border-b-2 transition-all cursor-pointer ${
-              activeTab === 'android'
-                ? 'border-cyan-400 text-cyan-300'
+            id="tab-btn-github"
+            onClick={() => setActiveTab('github')}
+            className={`flex items-center gap-2 py-3 px-3.5 text-xs font-mono font-medium border-b-2 transition-all cursor-pointer shrink-0 ${
+              activeTab === 'github'
+                ? 'border-emerald-400 text-emerald-300'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Smartphone className="w-4 h-4" />
-            <span>Android (APK & AAB via Capacitor)</span>
+            <Github className="w-4 h-4 text-emerald-400" />
+            <span className="flex items-center gap-1.5">
+              <span>GitHub Actions (অটোমেটিক .exe)</span>
+              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Auto</span>
+            </span>
           </button>
 
           <button
+            id="tab-btn-windows"
             onClick={() => setActiveTab('windows')}
-            className={`flex items-center gap-2 py-3 px-4 text-xs font-mono font-medium border-b-2 transition-all cursor-pointer ${
+            className={`flex items-center gap-2 py-3 px-3.5 text-xs font-mono font-medium border-b-2 transition-all cursor-pointer shrink-0 ${
               activeTab === 'windows'
                 ? 'border-indigo-400 text-indigo-300'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <Monitor className="w-4 h-4" />
-            <span>Windows PC Software (.exe via Electron)</span>
+            <span>Windows PC Local (.exe)</span>
+          </button>
+
+          <button
+            id="tab-btn-android"
+            onClick={() => setActiveTab('android')}
+            className={`flex items-center gap-2 py-3 px-3.5 text-xs font-mono font-medium border-b-2 transition-all cursor-pointer shrink-0 ${
+              activeTab === 'android'
+                ? 'border-cyan-400 text-cyan-300'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Smartphone className="w-4 h-4" />
+            <span>Android (APK & AAB)</span>
           </button>
         </div>
 
         {/* Tab Content */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          {activeTab === 'android' ? (
+          {activeTab === 'github' ? (
+            <div className="space-y-6">
+              {/* Feature Banner */}
+              <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 flex items-start gap-3.5">
+                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-emerald-300 font-display flex items-center gap-2">
+                    <span>গিটহাব ক্লাউডের মাধ্যমে সম্পূর্ণ অটোমেটিক .exe ফাইল জেনারেট</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/40">100% Working</span>
+                  </h4>
+                  <p className="text-xs font-mono text-slate-300 leading-relaxed">
+                    আপনার কম্পিউটারে কোনো জটিল সফটওয়্যার বা ভারী প্যাকেজ ইনস্টল করার প্রয়োজন নেই! গিটহাবের ভার্চুয়াল ক্লাউড রানার (<code className="text-emerald-300">windows-latest</code>) স্বয়ংক্রিয়ভাবে উইন্ডোজ ইনস্টলার এবং পোর্টেবল <code className="text-emerald-300">.exe</code> ফাইল তৈরি করে ডাউনলোড লিঙ্ক প্রদান করবে।
+                  </p>
+                </div>
+              </div>
+
+              {/* 4 Step Visual Workflow */}
+              <div className="space-y-3">
+                <h5 className="text-xs font-mono uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                  <Play className="w-4 h-4 text-emerald-400" />
+                  <span>অটোমেটিক .exe ফাইল তৈরির ৪টি সহজ ধাপ:</span>
+                </h5>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-[11px] border border-emerald-500/40">1</span>
+                      <span>প্রজেক্টটি গিটহাবে পুশ করুন</span>
+                    </div>
+                    <p className="text-[11px] font-mono text-slate-400 leading-relaxed">
+                      প্রজেক্টের <code className="text-cyan-300">.github/workflows/build-windows-exe.yml</code> ফাইলটি ইতিমধ্যে এই অ্যাপের মধ্যে যুক্ত করা হয়েছে। এটি গিটহাবে পুশ করে দিন।
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-[11px] border border-emerald-500/40">2</span>
+                      <span>GitHub-এর Actions ট্যাবে যান</span>
+                    </div>
+                    <p className="text-[11px] font-mono text-slate-400 leading-relaxed">
+                      আপনার GitHub রিপোজিটরির উপরের মেনু থেকে <strong className="text-slate-200">"Actions"</strong> ট্যাবে ক্লিক করুন।
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-[11px] border border-emerald-500/40">3</span>
+                      <span>"Run workflow" ক্লিক করুন</span>
+                    </div>
+                    <p className="text-[11px] font-mono text-slate-400 leading-relaxed">
+                      বামপাশের মেনু থেকে <strong className="text-slate-200">"Build Windows Desktop App (.exe)"</strong> বেছে নিয়ে ডানপাশের নীল বাটন <strong className="text-cyan-300">"Run workflow"</strong> চাপুন।
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-[11px] border border-emerald-500/40">4</span>
+                      <span>.exe ফাইল ডাউনলোড ও চালান</span>
+                    </div>
+                    <p className="text-[11px] font-mono text-slate-400 leading-relaxed">
+                      ৩-৪ মিনিটে বিল্ড শেষ হলে পেজের নিচে <strong className="text-emerald-300">Artifacts</strong> সেকশনে <code className="text-white">Abdullah-Al-Mohit-Portfolio-Windows-EXE.zip</code> চলে আসবে। ডাউনলোড করে এক্সট্র্যাক্ট করলেই আসল <code className="text-emerald-300">.exe</code> ফাইল পেয়ে যাবেন!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Workflow File Preview & Copy */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-mono uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                    <FileCode className="w-4 h-4 text-emerald-400" />
+                    <span>.github/workflows/build-windows-exe.yml</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCopy(githubWorkflowYaml, 'github-yaml')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-mono border border-emerald-500/40 transition-colors"
+                    >
+                      {copiedKey === 'github-yaml' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKey === 'github-yaml' ? 'কপি হয়েছে!' : 'Copy Workflow YAML'}</span>
+                    </button>
+                  </div>
+                </div>
+                <pre className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-300 overflow-x-auto whitespace-pre leading-relaxed">
+                  {githubWorkflowYaml}
+                </pre>
+              </div>
+            </div>
+          ) : activeTab === 'android' ? (
             <div className="space-y-6">
               <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-start gap-3 text-xs font-mono text-cyan-300 leading-relaxed">
                 <ShieldCheck className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
