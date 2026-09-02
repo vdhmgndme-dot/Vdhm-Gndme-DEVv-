@@ -7,7 +7,11 @@
   "license": "MIT",
   "scripts": {
     "start": "electron main.js",
-    "build:win": "electron-builder --win nsis portable --x64"
+    "build:win": "electron-builder --win nsis portable --x64 --publish never"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vdhmgndme-dot/Vdhm-Gndme-DEVv-.git"
   },
   "devDependencies": {
     "electron": "^33.2.1",

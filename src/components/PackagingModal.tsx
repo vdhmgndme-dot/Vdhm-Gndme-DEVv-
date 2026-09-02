@@ -82,9 +82,7 @@ jobs:
 
       - name: Build Standalone Windows .exe (Installer & Portable)
         working-directory: ./electron
-        run: npm run build:win
-        env:
-          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win nsis portable --x64 --publish never
 
       - name: Upload Windows .exe as Artifact
         uses: actions/upload-artifact@v4
